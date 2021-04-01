@@ -1,0 +1,44 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+using namespace std;
+
+class goods
+{
+public:
+	void RegisterGoods(char* _name,float _price,int _count)
+	{
+		strcpy(name , _name);
+		price = _price;
+		count = _count;
+	}
+	char* GetName()
+	{
+		return name;
+	}
+	float Getpirce()
+	{
+		return price;
+	}
+	int Getcount()
+	{
+		return count;
+	}
+	float GetTotalPrice()
+	{
+		return price * count;
+	}
+private:
+	char name[10];
+	float price;
+	int count;
+};
+
+int main()
+{
+	goods t1,t2;
+	t1.RegisterGoods("数据结构",22,30);
+	t2.RegisterGoods("C++教程", 17.8, 80);
+	cout << t1.Getcount() << endl;
+	cout << t2.Getpirce() << endl;
+	return 0;
+}
