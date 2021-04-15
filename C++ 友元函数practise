@@ -1,0 +1,58 @@
+#include<iostream>
+using namespace std;
+
+//前向声明
+class Test;
+class A
+{
+	friend int GetData(Test &d, A &a, int flag);
+private:
+	int m_adata = 120;
+};
+
+
+class Test
+{
+	friend ostream& operator<<(ostream& out, const Test&d);
+	friend int GetData(Test &d, A &a, int flag);
+public:
+	Test(int data = 0) :m_data(data)
+	{}
+	Test(const Test& t)
+	{
+		m_data = t.m_data;
+	}
+	~Test()
+	{}
+private:
+	int m_data;
+};
+
+
+int GetData(Test &d,A &a,int flag)
+{
+	if (flag == 0)
+	{
+		return d.m_data;
+	}
+	else
+	{
+		return a.m_adata;
+	}
+}
+
+
+ostream& operator<<(ostream& out, const Test&d)
+{
+	out << "t=" <<d.m_data;
+	return out;
+}
+
+
+int main()
+{
+	Test d(10);
+	A a;
+	cout << GetData(d, a, 1) << endl;
+	return 0;
+}
