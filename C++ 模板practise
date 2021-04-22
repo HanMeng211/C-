@@ -1,0 +1,26 @@
+#include<iostream>
+using namespace std;
+
+template<typename Type>
+void Swap(Type &a, Type & b)
+{
+	Type tem = a;
+	a = b;
+	b = tem;
+	cout << "Type:" << typeid(Type).name()<<"   ";
+}
+void main()
+{
+	int a = 1, b = 2;
+	char c = 'A', d = 'B';
+	double e = 1.1, f = 2.2;
+	cout << "交换前:a=" << a << "  b=" << b << "   ";
+	Swap(a, b);
+	cout << "交换后:a=" << a << "  b=" << b << endl;
+	cout << "交换前:c=" << c << "  d=" << d << "   ";
+	Swap(c, d);
+	cout << "交换后:c=" << c << "  d=" << d << endl;
+	cout << "交换前:e=" << e << "  f=" << f << "   ";
+	Swap(e, f);
+	cout << "交换后:e=" << e << "  f=" << f << endl;
+}
