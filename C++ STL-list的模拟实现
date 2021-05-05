@@ -1,0 +1,306 @@
+#include<iostream>
+#include<list>
+using namespace std;
+
+
+namespace MyList
+{
+	template<class _Ty>
+	class List;
+	template<class _Ty>
+	class ListIterator;
+
+
+	//节点类
+	template<class _Ty>
+	class ListNode
+	{
+		friend class List<_Ty>;
+		friend class ListIterator<_Ty>;
+	public:
+		//节点的构造函数
+		ListNode() :_Value(_Ty()), _Next(nullptr), _Prev(nullptr)
+		{}
+		ListNode(_Ty Val, ListNode* next = nullptr, ListNode* prev = nullptr) :_Value(Val), _Next(next), _Prev(prev)
+		{}
+		//节点的析构函数
+		~ListNode()
+		{}
+	private:
+		_Ty       _Value;
+		ListNode* _Next;
+		ListNode* _Prev;
+	};
+
+
+
+
+	//迭代器类
+	template<class _Ty>
+	class ListIterator
+	{
+		typedef ListIterator _It;
+	public:
+		//迭代器的构造
+		ListIterator() :_Ptr(nullptr)
+		{}
+		ListIterator(ListNode<_Ty>* _P) :_Ptr(_P)
+		{}
+	public:
+		bool operator!=(const _It &it)
+		{
+			return _Ptr != it._Ptr;
+		}
+		bool operator==(const _It &it)
+		{
+			return _Ptr == it._Ptr;
+		}
+		_Ty& operator*()
+		{
+			return (_Ptr->_Value);
+		}
+		_It& operator++()
+		{
+			_Ptr = _Ptr->_Next;
+			return *this;
+		}
+	public:
+		ListNode<_Ty>* _MyNode()
+		{
+			return _Ptr;
+		}
+	public:
+		_It& operator--()
+		{
+			_Ptr = _Ptr->_Prev;
+			return *this;
+		}
+	private:
+		ListNode<_Ty>* _Ptr;
+	};
+
+
+
+
+	//链表类
+	template<class _Ty>
+	class List
+	{
+	public:
+		typedef ListNode<_Ty>* _Nodeptr;
+		typedef ListIterator<_Ty> iterator;
+	public:
+		//求节点个数
+		size_t size()const
+		{
+			return _Size;
+		}
+		//判空
+		bool empty()const
+		{
+			return (size() == 0);
+		}
+
+	public:
+		//迭代器
+		iterator begin()
+		{
+			return iterator(_Head->_Next);
+		}
+		iterator end()
+		{
+			return iterator(_Head);
+		}
+	public:
+		//插入
+		iterator insert(iterator pos, const _Ty &x)
+		{
+			_Nodeptr cur = pos._MyNode();
+			_Nodeptr _S = new ListNode<_Ty>(x);
+			_S->_Next = cur;
+			_S->_Prev = cur->_Prev;
+			_S->_Next->_Prev = _S;
+			_S->_Prev->_Next = _S;
+			++_Size;
+			return iterator(_S);
+		}
+		//在pos位置插入n个x,
+		void insert(iterator pos, size_t n, const _Ty &x)
+		{
+			while (n--)
+			{
+				insert(pos, x);
+			}
+		}
+	public:
+		//尾插
+		iterator push_back(const _Ty &x)
+		{
+			return insert(end(), x);
+		}
+		//头插
+		iterator push_front(const _Ty &x)
+		{
+			return insert(begin(), x);
+		}
+	public:
+		//删除pos位置的节点，返回该节点的下一个位置
+		iterator erase(iterator pos)
+		{
+			_Nodeptr cur = pos._MyNode();
+			_Nodeptr next_node = cur->_Next;
+			cur->_Prev->_Next = cur->_Next;
+			cur->_Next->_Prev = cur->_Prev;
+
+			delete cur;
+
+			_Size--;
+
+			return iterator(next_node);
+		}
+	public:
+		//删除一个区间
+		iterator erase(iterator first, iterator last)
+		{
+			while (first != last)
+			{
+				first = erase(first);
+			}
+			return first;
+		}
+		//清除
+		void clear()
+		{
+			erase(begin(), end());
+		}
+	public:
+		//尾删
+		iterator pop_back()
+		{
+			return erase(--end());
+		}
+		//头删
+		iterator pop_front()
+		{
+			return erase(begin());
+		}
+	public:
+		//求头节点
+		_Ty & Front()
+		{
+			return *begin();
+		}
+		const _Ty & Front()const
+		{
+			return *begin();
+		}
+		//求尾节点
+		_Ty & Back()
+		{
+			return *--end();
+		}
+		const _Ty & Back()const
+		{
+			return *--end();
+		}
+	public:
+		//交换函数
+		void swap(List<_Ty> & lt)
+		{
+			//用系统里的交换函数
+			std::swap(_Head, lt._Head);
+			std::swap(_Size, lt._Size);
+		}
+	public:
+		//List的构造函数
+		List() :_Head(BuyNode()), _Size(0)
+		{}
+		List(size_t n, const _Ty & x = _Ty()) :_Size(0)
+		{
+			_Head = BuyNode();
+			insert(end(), n, x);
+		}
+		List(const _Ty *first, const _Ty *last) :_Size(0)
+		{
+			_Head = BuyNode();
+			while (first != last)
+			{
+				push_back(*first++);
+			}
+		}
+		List(iterator first,iterator last) :_Size(0)
+		{
+			_Head = BuyNode();
+			while (first != last)
+			{
+				push_back(*first);
+				++first;
+			}
+		}
+		//List的拷贝构造函数
+		List(List<_Ty> & lt) :_Size(0)
+		{
+			_Head = BuyNode();
+			List<_Ty> tem(lt.begin(), lt.end());
+
+			this->swap(tem);
+		}
+		//List的析构函数
+		~List()
+		{
+			clear();
+			delete _Head;
+			_Size = 0;
+		}
+	protected:
+		//申请一个节点
+		_Nodeptr BuyNode()
+		{
+			_Nodeptr _S = new ListNode<_Ty>;
+			_S->_Prev = _S->_Next = _S;
+			return _S;
+		}
+	private:
+		_Nodeptr  _Head;
+		size_t _Size;
+	};
+}
+
+void main()
+{
+	int arr[] = { 1, 2, 3, 4, 5, 6, 7,8, 9 ,10};
+	MyList::List<int> lt(arr,arr+5);
+	MyList::List<int> lt1(lt);
+	/*MyList::List<int> lt1(arr+5, arr + 10);*/
+	//lt.swap(lt1);
+	//MyList::List<int> lt(10);
+	//MyList::List<int> lt(10,5);
+	lt.insert(lt.end(), 0);
+	lt.insert(lt.end(), 1);
+	lt.insert(lt.end(), 2);
+	lt.insert(lt.end(), 3);
+	lt.insert(lt.end(), 4);
+	lt.insert(lt.end(), 5);
+	//lt.push_back(6);
+	//lt.push_front(-1);
+	//lt.erase(lt.begin());
+	//lt.erase(--lt.end());
+	//lt.pop_back();
+	//lt.pop_front();
+	MyList::List<int>::iterator it = lt.begin();
+	while (it != lt.end())
+	{
+		cout << *it << " ";
+		++it;
+	}
+	cout << endl;
+	MyList::List<int>::iterator it1 = lt1.begin();
+	while (it1 != lt1.end())
+	{
+		cout << *it1 << " ";
+		++it1;
+	}
+	cout << endl;
+	//cout << lt.Back() << endl;
+	//cout << lt.Front() << endl;
+}
