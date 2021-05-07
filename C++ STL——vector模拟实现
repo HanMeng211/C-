@@ -1,0 +1,291 @@
+#include<iostream>
+#include<assert.h>
+#include<vector>
+using namespace std;
+
+namespace myvector
+{
+	template<class _Ty>
+	class vector
+	{
+	public:
+		typedef _Ty* iterator;
+		typedef const _Ty* const_iterator;//常迭代器
+	public:
+		//构造方法
+		vector() :_start(nullptr), _finish(nullptr), _end(nullptr)
+		{}
+		vector(size_t n, const _Ty &val = _Ty()) :_start(nullptr), _finish(nullptr), _end(nullptr)
+		{
+			insert(begin(), n, val);
+		}
+		vector(_Ty *first, _Ty *last) :_start(nullptr), _finish(nullptr), _end(nullptr)
+		{
+			/*insert(begin(), first, last);*/
+			while (first != last)
+			{
+				push_back(*first);
+				++first;
+			}
+		}
+		//拷贝构造
+		vector(const vector<int> &v) :_start(nullptr), _finish(nullptr), _end(nullptr)
+		{
+			reserve(v.capacity());
+			//insert(begin(), v.begin(), v.end());
+			auto it = v.begin();
+			while (it != v.end())
+			{
+				push_back(*it++);
+			}
+		}
+		//赋值
+		vector &operator=(const vector<_Ty> &v)
+		{
+			vector<_Ty> tem(v);
+			swap(tem);
+			return *this;
+		}
+		//析构
+		~vector()
+		{
+			delete[] _start;
+			_start = _finish = _end = nullptr;
+		}
+	public:
+		//求元素个数
+		size_t size()const
+		{
+			return _finish - _start;
+		}
+		//求容量大小
+		size_t capacity()const
+		{
+			return _end - _start;
+		}
+		//判空
+		bool empty()const
+		{
+			return (size() == 0);
+		}
+
+	public:
+		//预留空间
+		void reserve(size_t n)
+		{
+			//大于capacity扩容，小于capacity不变
+			if (n > capacity())
+			{
+				int old_size = size();
+				_Ty* new_base = new _Ty[n];
+
+				//若原始空间不为空，则需要拷贝原始数据到新的空间
+				if (_start)
+				{
+					memcpy(new_base, _start, sizeof(_Ty)*old_size);
+					delete[] _start;
+				}
+
+				_start = new_base;
+				_finish = _start + old_size;
+				_end = _start + n;
+			}
+		}
+	public:
+		//在pos位置插入
+		iterator insert(iterator pos, const _Ty& x)
+		{
+			int old_sz = size();
+			int old_capa = capacity();
+
+			//确保pos位置有效
+			//防止pos给空
+			if (pos == nullptr)
+			{
+				pos = _start;
+			}
+
+			if (old_sz + 1 > old_capa)
+			{
+				//防止迭代器失效，找不到迭代器之前指向的位置
+				size_t it_pos = pos - _start;
+				//2倍扩容
+				size_t new_capa = old_capa * 2;
+				if (new_capa == 0)
+				{
+					new_capa = 1;
+				}
+				reserve(new_capa);
+
+				//重新给_p赋值,更新迭代器
+				pos = _start + it_pos;
+			}
+
+			//移动数据
+			iterator tail = _finish++;
+			while (tail != pos)
+			{
+				*tail = *(tail - 1);
+				--tail;
+			}
+
+			*pos = x;
+			return pos;
+		}
+		//在pos位置插入n个x
+		void insert(iterator pos, size_t n, const _Ty& x)
+		{
+			while (n--)
+			{
+				insert(pos, x);
+			}
+		}
+		//在pos位置插入一个区间
+		void insert(iterator pos, const_iterator first, const_iterator last)
+		{
+			while (first != last)
+			{
+				insert(pos, *first);
+
+				++first;
+			}
+		}
+	public:
+		//尾插
+		void push_back(const _Ty & x)
+		{
+			insert(end(), x);
+		}
+	public:
+		iterator begin()
+		{
+			return _start;
+		}
+		iterator end()
+		{
+			return _finish;
+		}
+		const iterator begin()const
+		{
+			return _start;
+		}
+		const iterator end()const
+		{
+			return _finish;
+		}
+	public:
+		//重载[ ]
+		_Ty &operator[](int i)
+		{
+			return _start[i];
+		}
+		const _Ty &operator[](int i)const
+		{
+			return _start[i];
+		}
+		//at()函数，要对下标的有效性进行检测
+		_Ty &at(int i)
+		{
+			assert(i >= 0 && i < size());
+			return _start[i];
+		}
+		const _Ty &at(int i)const
+		{
+			assert(i >= 0 && i < size());
+			return _start[i];
+		}
+		//resize()调整size大小
+		void resize(size_t n, const _Ty& x = _Ty())
+		{
+			if (n <= size())
+			{
+				_finish = _start + n;
+			}
+
+			//调整的大小大于容量，就要扩容
+			if (n > capacity())
+			{
+				reserve(n);
+			}
+			//保留已有元素的末尾位置
+			iterator tail = _finish;
+			//移动_finish
+			_finish = _start + n;
+			//将已有元素后置为x
+			while (tail < _finish)
+			{
+				*tail = x;
+				++tail;
+			}
+		}
+		//交换两个向量
+		void swap(vector & str)
+		{
+			std::swap(_start, str._start);
+			std::swap(_finish, str._finish);
+			std::swap(_end, str._end);
+		}
+	private:
+		iterator _start;
+		iterator _finish;
+		iterator _end;
+	};
+}
+
+void main()
+{
+	int arr[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+	//myvector::vector<int> vec(10,6);
+	myvector::vector<int> vec(arr, arr + 5);
+	/*cout << "size = " << vec.size() << endl;
+	cout << "capacity = " << vec.capacity() << endl;*/
+	myvector::vector<int> vec1(arr+5,arr+10);
+	/*vec.swap(vec1);*/
+	vec = vec1;
+	myvector::vector<int>::iterator it = vec.begin();
+	while (it != vec.end())
+	{
+		cout << *it << " ";
+		++it;
+	}
+	cout << endl;
+	myvector::vector<int>::iterator pit = vec1.begin();
+	while (pit != vec1.end())
+	{
+		cout << *pit << " ";
+		++pit;
+	}
+	cout << endl;
+	//vec.reserve(10);
+	//vec.insert(vec.begin(), 1);
+	/*vec.push_back(1);
+	vec.push_back(2);
+	vec.push_back(3);*/
+	//vec.insert(vec.end(), 10, 5);
+	//myvector::vector<int>::iterator it = vec1.begin();
+	//while (it != vec1.end())
+	//{
+	//	cout << *it << " ";
+	//	++it;
+	//}
+	//cout << endl;
+
+	//cout << "size = " << vec.size() << endl;
+	//cout << "capacity = " << vec.capacity() << endl;
+	//cout << "size = " << vec.size() << endl;
+	//cout << "capacity = " << vec.capacity() << endl;
+	//for (int i = 0; i < vec.size(); i++)
+	//{
+	//	cout << vec[i] << " ";
+	//}
+	//cout << endl;
+	//vec.resize(15,6);
+	//for (int i = 0; i < vec.size(); i++)
+	//{
+	//	cout << vec.at(i) << " ";
+	//}
+	//cout << endl;
+	//cout << "size = " << vec.size() << endl;
+	//cout << "capacity = " << vec.capacity() << endl;
+
+}
