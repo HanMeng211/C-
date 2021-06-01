@@ -1,0 +1,50 @@
+#include<iostream>
+using namespace std;
+
+class animal
+{
+public:
+	void Eat()
+	{
+		cout << "animal::Eat()" << endl;
+	}
+	void Sleep()
+	{
+		cout << "animal::Sleep()" << endl;
+	}
+protected:
+	void Foot()
+	{
+		cout << "animal::Foot()" << endl;
+	}
+private:
+	int a_data;
+};
+class bird : protected animal
+{
+public:
+	void Fly()
+	{
+		cout << "bird::Fly()" << endl;
+	}
+	void Show()
+	{
+		Foot();
+	}
+private:
+	int b_data;
+};
+class ostrich :public bird
+{
+public:
+	void Swim()
+	{
+		cout << "ostrich::Look()" << endl;
+	}
+	void Show()
+	{
+		Eat();
+	}
+private:
+	int o_data;
+};
