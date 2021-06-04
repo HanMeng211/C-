@@ -1,0 +1,31 @@
+#include<iostream>
+using namespace std;
+
+class Preson
+{
+public:
+	virtual void BuyTicket()
+	{
+		cout << "买全票" << endl;
+	}
+};
+class Student : public Preson
+{
+public:
+	virtual void BuyTicket()
+	{
+		cout << "买票半价" << endl;
+	}
+};
+void Func(Preson& p)
+{
+	p.BuyTicket();
+}
+void main()
+{
+	Student st;
+	Func(st);
+
+	Preson* p = &st;
+	p->BuyTicket();
+}
