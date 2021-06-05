@@ -1,0 +1,28 @@
+#include<iostream>
+using namespace std;
+
+class preson
+{
+public:
+	virtual preson& func()
+	{
+		cout << "preson::func" << endl;
+		return *this;
+	}
+};
+class student : public preson
+{
+public:
+	virtual student& func()
+	{
+		cout << "student::func" << endl;
+		return *this;
+	}
+};
+
+void main()
+{
+	student st;
+	preson* p = &st;
+	p->func();
+}
