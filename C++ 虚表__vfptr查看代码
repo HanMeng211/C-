@@ -1,0 +1,38 @@
+#include<iostream>
+using namespace std;
+
+class Base
+{
+public:
+	virtual void fun()
+	{
+		cout << "Base::fun()" << endl;
+	}
+	virtual void fun1()
+	{
+		cout << "Base::fun1()" << endl;
+	}
+	virtual void fun2()
+	{
+		cout << "Base::fun2()" << endl;
+	}
+private:
+	int m_a = 10;
+	int m_b = 20;
+};
+class child : public Base
+{
+public:
+	virtual void fun3()
+	{
+		cout << "child::fun3()" << endl;
+	}
+private:
+	int c_a = 1;
+	int c_b = 2;
+};
+void main()
+{
+	Base b;
+	child ch;
+}
